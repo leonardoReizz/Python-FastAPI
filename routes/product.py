@@ -7,8 +7,7 @@ product_database = Database(Product)
 @product_router.post('/')
 async def create_product(product: Product):
   product = await product_database.save(product)
-  print("a")
-  print(product)
+
   return {
     "message": product 
   }
@@ -28,9 +27,9 @@ async def delete_product(productId: str):
     
 @product_router.get('/')
 async def list_products():
-  list = await product_database.get_all()
+  listProducts = await product_database.get_all()
 
-  return { "message" : list }
+  return { "message" : listProducts }
 
 @product_router.get('/{productId}')
 async def find_product_by_id(productId: str):

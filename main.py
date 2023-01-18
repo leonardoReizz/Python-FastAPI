@@ -1,36 +1,41 @@
-from typing import Union
-
+import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel
-
-
-class Item(BaseModel):
-  name: str
-  price: float
-  aaaa: float
+from fastapi.responses import RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
+from routes.product import product_router
+from database.connection import Settings
+from routes.users import user_router
 
 app = FastAPI()
 
+settings = Settings()
 
-@app.get('/')
-def read_root():
-  message = "Hello World"
-  return {  "message":  message } 
+origins = [
+    "*",
+    "http://localhost",
+    "https://localhost:3000",
+    "https://localhost:5173"
+]
 
-@app.get('/items/{itemId}')
-def get_item_by_id(itemId: int, q: Union[str, None] = None):
-  return { "itemId": itemId, "Nao sei o que e " : q}
-
-@app.put('/item/{itemId}')
-def update_item(itemId: int, item: Item):
-  return { "itemId": itemId, "item": item }
-
-@app.post('/item')
-def create_item(item: Item):
-    return { "item": item }
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 
-@app.post('/compras')
-def create_item(item: Item):
-    return { "item": item }
+app.include_router(user_router, prefix="/user")
+app.include_router(product_router, prefix="/product")
+@app.on_event("startup")
+async def init_db():
+  await settings.initialize_database()
 
+@app.get("/")
+async def home():
+  return { "message" : "ok"}
+
+
+if __name__ == '__main__':
+  uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)

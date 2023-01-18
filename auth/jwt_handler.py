@@ -1,9 +1,10 @@
 import time
-from datetime import datetimer
+from datetime import datetime
 from database.connection import Settings
 from fastapi import HTTPException, status
 from jose import jwt, JWTError
 
+settings = Settings()
 
 def create_access_token(user: str):
   payload = {
@@ -19,6 +20,11 @@ def verify_access_token(token: str):
     expire = data.get("expire")
 
     if expire is None:
+      raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Token expired"
+      )
+    if datetime.utcnow() > datetime.utcfromtimestamp(expire):
       raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Token expired"

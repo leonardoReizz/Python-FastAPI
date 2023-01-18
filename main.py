@@ -1,5 +1,6 @@
 import uvicorn
-from fastapi import FastAPI
+from auth.authenticate import oauth2_scheme
+from fastapi import FastAPI, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from routes.product import product_router
@@ -27,7 +28,8 @@ app.add_middleware(
 
 
 app.include_router(user_router, prefix="/user")
-app.include_router(product_router, prefix="/product")
+app.include_router(product_router, prefix="/product", dependencies=[Depends(oauth2_scheme)])
+
 @app.on_event("startup")
 async def init_db():
   await settings.initialize_database()

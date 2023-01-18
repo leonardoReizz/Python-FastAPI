@@ -34,10 +34,10 @@ class Database:
     return False
   
   async def get_all(self):
-    docs = await self.model.find.all().to_list()
+    docs = await self.model.find_all().to_list()
     if docs:
       return docs
-    return False
+    return []
   
   async def update(self, id: PydanticObjectId, body: BaseModel):
     doc_id = id
@@ -50,7 +50,7 @@ class Database:
 
     doc = await self.get(doc_id)
     if not doc:
-        return False
+      return False
 
     await doc.update(update_query)
     return doc

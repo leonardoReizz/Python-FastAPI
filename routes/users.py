@@ -3,7 +3,7 @@ from auth.jwt_handler import create_access_token
 from database.connection import Database
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from models.user import User, UserSignIn, TokenResponse
+from models.user import User, TokenResponse
 
 user_router = APIRouter(tags=["user"])
 user_database = Database(User)
@@ -25,8 +25,8 @@ async def create_user(user: User) -> dict:
   }
 
 @user_router.post('/signin', response_model = TokenResponse)
-async def sign_user_in(user: UserSignIn) -> dict:
-  user_exist = await User.find_one(User.email == user.email)
+async def sign_user_in(user: OAuth2PasswordRequestForm = Depends()) -> dict:
+  user_exist = await User.find_one(User.email == user.username)
 
   if not user_exist:
     raise HTTPException(

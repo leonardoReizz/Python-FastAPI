@@ -1,6 +1,7 @@
 from typing import Optional
 from beanie import init_beanie, PydanticObjectId
 from models.user import User
+from models.product import Product
 from pydantic import BaseModel, BaseSettings
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -11,7 +12,7 @@ class Settings(BaseSettings):
     
     async def initialize_database(self):
       client = AsyncIOMotorClient(self.DATABASE_URL)
-      await init_beanie(database=client.get_default_database(), document_models=[User])
+      await init_beanie(database=client.get_default_database(), document_models=[User, Product])
 
     class Config:
       env_file=".env"
@@ -22,8 +23,8 @@ class Database:
     self.model = model
     
   async def save(self, document):
-    await document.create()
-    return
+    return await document.create()
+    
   
   async def get(self, id: PydanticObjectId):
     doc = await self.model.get(id)
